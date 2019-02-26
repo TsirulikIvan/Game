@@ -54,10 +54,7 @@ def draw_map(start_x,start_y,map = [],*col):
                 pygame.draw.rect(sc, color, (x, y, width, height))
             elif (j == 2):
                 pygame.draw.rect(sc, (255,0,255), (x, y, width, height))
-            elif (j == 4):
-                pygame.draw.rect(sc, (0,255,0), (x, y, width, height / 5))
-            elif (j == 6):
-                pygame.draw.rect(sc, (0,255,0), (x, y, width / 5, height))
+
             x += width
         x = 0
         y += height
