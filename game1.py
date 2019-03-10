@@ -16,7 +16,7 @@ def map_gen(pol_width, pol_height, map_width, map_height, obj = []):
             elif (j == 0) or (j == long - 1):
                 line.append(1)
             elif (i > 2) and (j > 2) and (i < num_line - 3) and (j < long - 3):
-                    line.append(random.randint(0, 4))
+                    line.append(int(random.expovariate(1/2)))
             else:
                 line.append(0)
                 j += 1
@@ -41,9 +41,9 @@ def draw_map(start_x, start_y,map = [], *col):
             if (j == 1):
                 pygame.draw.rect(sc, color, (x, y, width, height))
             elif (j == 2):
-                pygame.draw.rect(sc, (255,0,255), (x, y, width, height))
+                pygame.draw.rect(sc, (255, 0, 255), (x, y, width, height))
             elif (j == 0):
-                pygame.draw.rect(sc, (0,0,0), (x, y, width, height))
+                pygame.draw.rect(sc, (0, 0, 0), (x, y, width, height))
             x += width
         x = 0
         y += height
@@ -53,10 +53,10 @@ def norm_frame(lst = []):
     return 0
 
 def form_zone(ind = 3, z_w = 3, z_h = 3, lst =[]):
-    for num_fr in range(ind,len(lst[0]) - 1, h):
+    for num_fr in range(ind, len(lst[0]) - 1, h):
         fr = []
-        for i in range(num_fr,z_h + z_w,1):
-            tmp = lst[i][ind:ind + z_w:1]
+        for i in range(num_fr, z_h + z_w, 1):
+            tmp = lst[i][ind : ind + z_w : 1]
             fr.extend(tmp)
     return fr
 
@@ -75,6 +75,7 @@ def lvl():
     pygame.draw.rect(sc, BLACK, (WIN_WIDTH / 4,  WIN_HEIGHT // 2 - height, WIN_WIDTH /2, height))
 
 def normal_map(map = []):
+    f = open('lvl.txt', 'w')
     flag = 0
     for i in map:
         cur_ind = 0
@@ -98,6 +99,7 @@ def normal_map(map = []):
             print(i)
             flag += 1
             continue
+        f.write(str(i) + '\n')
         print('')
         flag += 1
     return map
@@ -137,7 +139,7 @@ while True:
     for i in pygame.event.get():
         if i.type == pygame.QUIT: exit()
         elif i.type == pygame.KEYDOWN:
-            if i.key == pygame.K_LEFT:
+            if i.key == pygame.K_SPACE:
                 map_fin = normal_map(map)
                 draw_map(x, y, map_fin, RED, GREEN, BLUE)
 
