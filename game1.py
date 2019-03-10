@@ -2,6 +2,9 @@ import pygame
 import random
 
 def map_gen(pol_width, pol_height, map_width, map_height, obj = []):
+    f = open('lvl.txt', 'w')
+    f.write('Изначальная карта: \n')
+    f.write('\n')
     long = int(map_width / pol_width)
     num_line = int(map_height / pol_height)
     map = []
@@ -16,12 +19,15 @@ def map_gen(pol_width, pol_height, map_width, map_height, obj = []):
             elif (j == 0) or (j == long - 1):
                 line.append(1)
             elif (i > 2) and (j > 2) and (i < num_line - 3) and (j < long - 3):
-                    line.append(int(random.expovariate(1/2)))
+                    line.append(random.randint(0,4))
             else:
                 line.append(0)
                 j += 1
         map.append(line)
         i += 1
+        f.write(str(line) + '\n')
+    f.write('\n')
+    f.close()
     return map
 
 def show_map(Mylist = []):
@@ -32,7 +38,7 @@ def show_map(Mylist = []):
 #j = 2 -> Моб
 #j = 3 -> Дверь горизонт
 #j = 4 -> Дверь вверх
-def draw_map(start_x, start_y,map = [], *col):
+def draw_map(start_x, start_y, map = [], *col):
     color = (255, 255, 255)
     x = start_x
     y = start_y
@@ -75,10 +81,12 @@ def lvl():
     pygame.draw.rect(sc, BLACK, (WIN_WIDTH / 4,  WIN_HEIGHT // 2 - height, WIN_WIDTH /2, height))
 
 def normal_map(map = []):
-    f = open('lvl.txt', 'w')
+    f = open('lvl.txt', 'a')
+    f.write('Вариант нормализации карты: \n')
+    f.write('\n')
     flag = 0
     for i in map:
-        cur_ind = 0
+        cur_ind = -1
         if (flag > 2) and (flag < len(map) - 4):
             while (cur_ind <= len(i) - 1):
                 try:
@@ -97,11 +105,14 @@ def normal_map(map = []):
             for item in range(len(i)):
                 i[item] = random.randint(0, 1)
             print(i)
+            f.write(str(i) + '\n')
             flag += 1
             continue
         f.write(str(i) + '\n')
         print('')
         flag += 1
+    f.write('\n')
+    f.close()
     return map
 
 FPS = 40
