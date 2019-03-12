@@ -4,7 +4,7 @@ import random
 
 def map_gen(pol_width, pol_height, map_width, map_height, obj = [ ]):
     f = open('lvl.txt', 'w')
-    f.write('Изначальная карта: \n')
+    f.write('First map: \n')
     f.write('\n')
     long = int(map_width / pol_width)
     num_line = int(map_height / pol_height)
@@ -80,6 +80,9 @@ def lvl():
 
 
 def normal_map(map = []):
+    f = open('lvl.txt', 'a')
+    f.write('Normal map: \n')
+    f.write('\n')
     for i in range(len(map[0]) - 1):
         cur_ind = -1
         while (cur_ind <= len(map[i]) - 2):
@@ -94,6 +97,9 @@ def normal_map(map = []):
                 map[i + 1][cur_ind + 1] = random.randint(0,5)
             except ValueError:
                 cur_ind = len(map[i])
+        f.write(str(map[i]) + '\n')
+    f.write('\n')
+    f.close()
     return map
 
 
