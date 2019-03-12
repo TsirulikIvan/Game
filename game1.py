@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 
 
 def map_gen(pol_width, pol_height, map_width, map_height, obj = [ ]):
@@ -39,12 +40,9 @@ def show_map(Mylist = [ ]):
         print(i)
 
 """
-
 j = 1 -> Стена
 j = 2 -> Дверь горизонт
 j = 3 -> Дверь вверх
-
-
 """
 
 
@@ -54,17 +52,35 @@ def draw_map(start_x, start_y, map = [ ], *col):
     y = start_y
     for i in map:
         for j in i:
+            sc.blit(text1, (x, y))
             if (j == 1) | (j == 3):
-                pygame.draw.rect(sc, color, (x, y, width, height))
+                sc.blit(text2, (x, y))
             elif (j == 6):
-                pygame.draw.rect(sc, (255, 0, 255), (x, y, width, height / 8))
+                sc.blit(text_d_h, (x, y))
+                sc.blit(text_d_h1, (x + width / 2, y))
             elif (j == 2):
-                pygame.draw.rect(sc, (255, 160, 0), (x + int(width / 4), y, width / 2, height / 2))
-            elif (j == 7):
-                pygame.draw.rect(sc, (255, 0, 255), (x, y, width / 8, height))
+                sc.blit(text3, (x, y))
+            elif (j == 12):
+                sc.blit(text_d_v, (x, y))
+                sc.blit(text_d_v1, (x + width - 4, y))
+            elif (j == 18):
+                sc.blit(text1, (x, y))
             x += width
         x = 0
         y += height
+
+def enemy_spawn(sig_val = 18):
+    global my_map
+    global ind_i
+    global ind_j
+    try:
+        ene_i = ind_i - random.randint(4, 6)
+        print(ene_i)
+        ene_j = ind_j + random.randint(-3, 3)
+        print(ene_j)
+        my_map[int(ene_i)][int(ene_j)] = sig_val
+    except IndexError:
+        print('Spawn Error')
 
 
 def normal_map(map = []):
@@ -96,6 +112,7 @@ def normal_map(map = []):
 FPS = 40
 WIN_WIDTH = 840
 WIN_HEIGHT = 840
+INT_WIDTH = 260
 BLACK = (0, 0, 0)
 RED = 255
 GREEN = 0
@@ -104,66 +121,93 @@ CUSTOM_COL = (RED, GREEN, BLUE)
 WHITE = (255, 255, 255)
 ORANGE = (255, 150, 100)
 
+print(os.getcwd())
+text1 = pygame.image.load('crystal_floor5.png')
+text2 = pygame.image.load('wall_vines0.png')
+text3 = pygame.image.load('key1.png')
+text_p = pygame.image.load('player1.png')
+text_d_h = pygame.image.load('door1hor.png')
+text_d_h1 = pygame.image.load('door2hor.png')
+text_d_v = pygame.image.load('door1vert.png')
+text_d_v1 = pygame.image.load('door2vert.png')
 pygame.init()
 
 clock = pygame.time.Clock()
+enemy_timer = 0
 
-sc = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+sc = pygame.display.set_mode((WIN_WIDTH + INT_WIDTH, WIN_HEIGHT))
 
-width = 30
-height = 30
+width = 32
+height = 32
 x = 0
 y = 0
 x_hero = width
 y_hero = height
-map = map_gen(width, height, WIN_WIDTH, WIN_HEIGHT)
-map = normal_map(map)
-draw_map(x, y, map, RED, GREEN, BLUE)
+my_map = map_gen(width, height, WIN_WIDTH, WIN_HEIGHT)
+my_map = normal_map(my_map)
+tmp_surf = pygame.Surface((INT_WIDTH, 30))
+tmp_surf.fill(BLACK)
 
+pygame.font.init()
+my_font = pygame.font.SysFont('Comic Sans MS', 25)
 speed_x = width / 2
 speed_y = height / 2
 key_count = 0
 while True:
-    sc.fill(BLACK)
-    draw_map(x, y, map, RED, GREEN, BLUE)
-    pygame.draw.rect(sc, (0, 255, 0), (x_hero, y_hero, width / 2, height / 2))
+    if (enemy_timer == 100):
+        enemy_timer = 0
+    text_surface = my_font.render('Кол-во ключей: ' + str(key_count), False, (RED, 0, 0))
+
+    draw_map(x, y, my_map, RED, GREEN, BLUE)
+    sc.blit(tmp_surf, (WIN_WIDTH + 10, 0))
+    sc.blit(tmp_surf, (WIN_WIDTH + 10, WIN_HEIGHT - 100))
+    sc.blit(text_p, (x_hero, y_hero))
+    sc.blit(text_surface, (WIN_WIDTH + 10, 0))
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
             exit()
         elif i.type == pygame.KEYDOWN:
             if i.key == pygame.K_a:
                 x_hero -= speed_x
-                if (map[int(y_hero / height)][int(x_hero / width)] == 1) | (
-                        map[int(y_hero / height)][int(x_hero / width)] == 3):
+                if (my_map[int(y_hero / height)][int(x_hero / width)] == 1) | (
+                        my_map[int(y_hero / height)][int(x_hero / width)] == 3):
                     x_hero += speed_x
             elif i.key == pygame.K_d:
                 x_hero += speed_x
-                if (map[int(y_hero / height)][int(x_hero / width)] == 1) | (
-                        map[int(y_hero / height)][int(x_hero / width)] == 3):
+                if (my_map[int(y_hero / height)][int(x_hero / width)] == 1) | (
+                        my_map[int(y_hero / height)][int(x_hero / width)] == 3):
                     x_hero -= speed_x
             elif i.key == pygame.K_s:
                 y_hero += speed_y
-                if (map[int(y_hero / height)][int(x_hero / width)] == 1) | (
-                        map[int(y_hero / height)][int(x_hero / width)] == 3):
+                if (my_map[int(y_hero / height)][int(x_hero / width)] == 1) | (
+                        my_map[int(y_hero / height)][int(x_hero / width)] == 3):
                     y_hero -= speed_y
             elif i.key == pygame.K_w:
                 y_hero -= speed_y
-                if (map[int(y_hero / height)][int(x_hero / width)] == 1) | (
-                        map[int(y_hero / height)][int(x_hero / width)] == 3):
+                if (my_map[int(y_hero / height)][int(x_hero / width)] == 1) | (
+                        my_map[int(y_hero / height)][int(x_hero / width)] == 3):
                     y_hero += speed_y
+            elif i.key == pygame.K_1:
+                pygame.image.save(sc, os.path.join('img1.jpeg'))
     ind_i = y_hero / height
     ind_j = x_hero / width
-    obj = map[int(ind_i)][int(ind_j)]
-    #print('x = ' + str(x_hero) + ' y = ' + str(y_hero) + ' indI = ' + str(ind_i) + ' indJ = ' + str(
-   #     ind_j) + ' obj = ' + str(obj))
+    obj = my_map[int(ind_i)][int(ind_j)]
     if (obj == 2):
-        map[int(ind_i)][int(ind_j)] = 0
-        key_count += 1
+        if (key_count < 8):
+            my_map[int(ind_i)][int(ind_j)] = 0
+            sc.blit(text3, (WIN_WIDTH + key_count * width, 64))
+            key_count += 1
+        else:
+            text2_surf = my_font.render('У меня нет места!', False, (RED, 0, 0))
+            sc.blit(text2_surf, (WIN_WIDTH + 10, WIN_HEIGHT - 100))
     elif (obj == 6) & (key_count != 0):
+        sf = pygame.Surface((16, 16))
+        sf.fill(BLACK)
+        sc.blit(sf, (WIN_WIDTH + (key_count - 1) * width, 64))
         key_count -= 1
-        map[int(ind_i)][int(ind_j)] = 7
+        my_map[int(ind_i)][int(ind_j)] = 12
     elif (obj == 6) & (key_count == 0):
         y_hero -= speed_y
-
+    enemy_timer += 1
     pygame.display.update()
     clock.tick(FPS)
