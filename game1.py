@@ -7,7 +7,9 @@ def map_gen(pol_width, pol_height, map_width, map_height, obj = [ ]):
     f.write('First map: \n')
     f.write('\n')
     long = int(map_width / pol_width)
+    print(long)
     num_line = int(map_height / pol_height)
+    print(num_line)
     map = [ ]
     i = 0
     j = 0
@@ -57,26 +59,12 @@ def draw_map(start_x, start_y, map = [ ], *col):
             elif (j == 6):
                 pygame.draw.rect(sc, (255, 0, 255), (x, y, width, height / 8))
             elif (j == 2):
-                pygame.draw.rect(sc, (255, 160, 0), (x + 7, y + 7, width / 2, height / 2))
+                pygame.draw.rect(sc, (255, 160, 0), (x + int(width / 4), y, width / 2, height / 2))
+            elif (j == 7):
+                pygame.draw.rect(sc, (255, 0, 255), (x, y, width / 8, height))
             x += width
         x = 0
         y += height
-
-
-def first_anim(*col):
-    pygame.draw.rect(sc, col, (x, y, width, height))
-    pygame.draw.rect(sc, col, ((WIN_WIDTH - width) - x, (WIN_HEIGHT - height) - y, width, height))
-    pygame.draw.rect(sc, col, (x, (WIN_HEIGHT - height) - y, width, height))
-    pygame.draw.rect(sc, col, ((WIN_WIDTH - width) - x, y, width, height))
-    pygame.draw.rect(sc, col, (WIN_WIDTH / 2, y,width,height))
-    pygame.draw.rect(sc, col, (WIN_WIDTH / 2, (WIN_HEIGHT - height) - y, width, height))
-    pygame.draw.rect(sc, col, (x, WIN_HEIGHT / 2, width, height))
-    pygame.draw.rect(sc, col, ((WIN_WIDTH - width) - x, WIN_HEIGHT / 2,width,height))
-
-
-def lvl():
-    pygame.draw.rect(sc, WHITE, (width, height, WIN_WIDTH - 2 * width, WIN_HEIGHT - 2 * height))
-    pygame.draw.rect(sc, BLACK, (WIN_WIDTH / 4,  WIN_HEIGHT // 2 - height, WIN_WIDTH /2, height))
 
 
 def normal_map(map = []):
@@ -92,6 +80,8 @@ def normal_map(map = []):
                 map[i - 1][cur_ind] = 0
                 map[i][cur_ind - 1] = 1
                 map[i][cur_ind + 1] = 1
+                map[i][cur_ind - 2] = 1
+                map[i][cur_ind + 2] = 1
                 map[i + 1][cur_ind - 1] = random.randint(0,5)
                 map[i + 1][cur_ind] = 0
                 map[i + 1][cur_ind + 1] = random.randint(0,5)
@@ -104,8 +94,8 @@ def normal_map(map = []):
 
 
 FPS = 40
-WIN_WIDTH = 480
-WIN_HEIGHT = 480
+WIN_WIDTH = 840
+WIN_HEIGHT = 840
 BLACK = (0, 0, 0)
 RED = 255
 GREEN = 0
@@ -120,26 +110,60 @@ clock = pygame.time.Clock()
 
 sc = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
-width = 24
-height = 24
+width = 30
+height = 30
 x = 0
 y = 0
-startpoint = [WIN_WIDTH - 2 * width, WIN_HEIGHT - 2 * height]
+x_hero = width
+y_hero = height
 map = map_gen(width, height, WIN_WIDTH, WIN_HEIGHT)
-print(startpoint)
-show_map(map)
-print('')
+map = normal_map(map)
 draw_map(x, y, map, RED, GREEN, BLUE)
+
+speed_x = width / 2
+speed_y = height / 2
+key_count = 0
 while True:
     sc.fill(BLACK)
     draw_map(x, y, map, RED, GREEN, BLUE)
+    pygame.draw.rect(sc, (0, 255, 0), (x_hero, y_hero, width / 2, height / 2))
     for i in pygame.event.get():
-        if i.type == pygame.QUIT: exit()
+        if i.type == pygame.QUIT:
+            exit()
         elif i.type == pygame.KEYDOWN:
-            if i.key == pygame.K_SPACE:
-                map_fin = normal_map(map)
-                draw_map(x, y, map_fin, RED, GREEN, BLUE)
+            if i.key == pygame.K_a:
+                x_hero -= speed_x
+                if (map[int(y_hero / height)][int(x_hero / width)] == 1) | (
+                        map[int(y_hero / height)][int(x_hero / width)] == 3):
+                    x_hero += speed_x
+            elif i.key == pygame.K_d:
+                x_hero += speed_x
+                if (map[int(y_hero / height)][int(x_hero / width)] == 1) | (
+                        map[int(y_hero / height)][int(x_hero / width)] == 3):
+                    x_hero -= speed_x
+            elif i.key == pygame.K_s:
+                y_hero += speed_y
+                if (map[int(y_hero / height)][int(x_hero / width)] == 1) | (
+                        map[int(y_hero / height)][int(x_hero / width)] == 3):
+                    y_hero -= speed_y
+            elif i.key == pygame.K_w:
+                y_hero -= speed_y
+                if (map[int(y_hero / height)][int(x_hero / width)] == 1) | (
+                        map[int(y_hero / height)][int(x_hero / width)] == 3):
+                    y_hero += speed_y
+    ind_i = y_hero / height
+    ind_j = x_hero / width
+    obj = map[int(ind_i)][int(ind_j)]
+    #print('x = ' + str(x_hero) + ' y = ' + str(y_hero) + ' indI = ' + str(ind_i) + ' indJ = ' + str(
+   #     ind_j) + ' obj = ' + str(obj))
+    if (obj == 2):
+        map[int(ind_i)][int(ind_j)] = 0
+        key_count += 1
+    elif (obj == 6) & (key_count != 0):
+        key_count -= 1
+        map[int(ind_i)][int(ind_j)] = 7
+    elif (obj == 6) & (key_count == 0):
+        y_hero -= speed_y
 
     pygame.display.update()
-
     clock.tick(FPS)
